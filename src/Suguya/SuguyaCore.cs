@@ -19,6 +19,11 @@ namespace Suguya
         private SettingsStore _settingsStore { get; set; }
         private DiscordClient _client { get; set; }
 
+        private TimeSpan timeBetweenPosts = TimeSpan.FromMinutes(5);
+        private bool doPosting = true;
+
+        private List<string> filters = ConstantVars.FILTERS.Split(" ").ToList();
+
         public async Task StartAsync()
         {
             _settingsStore = await LoadSettingsAsync();
@@ -38,7 +43,6 @@ namespace Suguya
 
             _client = new DiscordClient(config);
 
-            // hook events
             this._client.Ready += this.OnReadyAsync;
 
             await ConnectAsync();
@@ -61,7 +65,7 @@ namespace Suguya
         private async Task PostWaifu()
         {
             // Yes I know this is bad I'll fix it later I'm just testing.
-            while (true)
+            while (doPosting)
             {
                 var jstring = await HttpRequestHandler.GetJsonStringAsync(ConstantVars.SAFE_SEARCH_QUERY_WAIFU);
 
@@ -101,7 +105,7 @@ namespace Suguya
         private async Task PostWaifuNSFW()
         {
             // yeah.
-            while (true)
+            while (doPosting)
             {
                 var jstring = await HttpRequestHandler.GetJsonStringAsync(ConstantVars.NSFW_SEARCH_QUERY_WAIFU);
 
@@ -110,8 +114,6 @@ namespace Suguya
                 var posts = jobject["results"].ToObject<List<Post>>();
 
                 var channel = await _client.GetChannelAsync(315463551882100736);
-
-                var filters = ConstantVars.FILTERS.Split(" ");
 
                 var rng = new Random();
                 while (posts.Count > 0)
@@ -133,7 +135,7 @@ namespace Suguya
                     if (!post.Tags.Any(t => filters.Contains(t)) && post.Extension.ToLower() != "gif" && post.Extension.ToLower() != "webm")
                     {
                         await channel.SendMessageAsync("", false, eb);
-                        await Task.Delay(TimeSpan.FromSeconds(10));
+                        await Task.Delay(TimeSpan.FromMinutes(5));
                     }
                     posts.Remove(post);
                     Console.WriteLine($"NSFW COUNT: {posts.Count}\n");
@@ -157,7 +159,7 @@ namespace Suguya
                     await sw.WriteAsync(json);
                     await sw.FlushAsync();
                 }
-                Console.WriteLine($"New settings file generated at {fi.FullName}\nPlease edit 'settings.json' and then relaunch.");
+                Console.WriteLine($"New settings file generated at '{fi.FullName}'\nPlease edit 'settings.json' and then relaunch.");
                 Console.ReadLine();
             }
 

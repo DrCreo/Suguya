@@ -32,7 +32,7 @@ namespace Suguya.Models
                     Prefix = ">",
                     WaifuChannelIds = new List<ulong>(),
                     WaifuChannelNsfwIds = new List<ulong>(),
-                    Filters = new List<string>();
+                    Filters = new List<string>()
                 };
             }
         }
