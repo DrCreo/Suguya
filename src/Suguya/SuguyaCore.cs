@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Entities;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace Suguya
 {
@@ -16,6 +18,7 @@ namespace Suguya
     {
         private SettingsStore _settingsStore { get; set; }
         private DiscordClient _client { get; set; }
+
         public async Task StartAsync()
         {
             _settingsStore = await LoadSettingsAsync();
@@ -36,7 +39,7 @@ namespace Suguya
             _client = new DiscordClient(config);
 
             // hook events
-            this._client.Ready += this.OnReady;
+            this._client.Ready += this.OnReadyAsync;
 
             await ConnectAsync();
             await Task.Delay(-1);
@@ -47,12 +50,96 @@ namespace Suguya
             await _client.ConnectAsync().ConfigureAwait(false);
         }
 
-        private Task OnReady(ReadyEventArgs e)
+        private async Task OnReadyAsync(ReadyEventArgs e)
         {
-            _client.UpdateStatusAsync(new DiscordActivity("conjured waifus.", ActivityType.Watching));
-            return Task.CompletedTask;
+            PostWaifu();
+            PostWaifuNSFW();
+
+            await _client.UpdateStatusAsync(new DiscordActivity("conjured waifus.", ActivityType.Watching));
         }
 
+        private async Task PostWaifu()
+        {
+            // Yes I know this is bad I'll fix it later I'm just testing.
+            while (true)
+            {
+                var jstring = await HttpRequestHandler.GetJsonStringAsync(ConstantVars.SAFE_SEARCH_QUERY_WAIFU);
+
+                var jobject = JObject.Parse(jstring);
+
+                var posts = jobject["results"].ToObject<List<Post>>();
+
+                var channel = await _client.GetChannelAsync(315059561017114627);
+
+                var rng = new Random();
+                while (posts.Count > 0)
+                {
+                    var post = posts[rng.Next(0, posts.Count - 1)];
+                    var eb = new DiscordEmbedBuilder
+                    {
+                        Title = $"{post.Source} (Warning may have NSFW content.",
+                        Url = post.Page,
+                        ImageUrl = post.Url,
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = $"Source: {post.SourceUrl}",
+                            IconUrl = "https://i.imgur.com/mrnHP3J.png"
+                        },
+                        Color = new DiscordColor("9e8cb9")
+                    };
+                    if (post.Extension.ToLower() != "gif" && post.Extension.ToLower() != "webm" && post.Source.ToLower() != "sankakucomplex")
+                    {
+                        await channel.SendMessageAsync("", false, eb);
+                        await Task.Delay(TimeSpan.FromSeconds(10));
+                    }
+                    posts.Remove(post);
+                    Console.WriteLine($"SAFE COUNT: {posts.Count}\n");
+                }
+            }
+        }
+
+        private async Task PostWaifuNSFW()
+        {
+            // yeah.
+            while (true)
+            {
+                var jstring = await HttpRequestHandler.GetJsonStringAsync(ConstantVars.NSFW_SEARCH_QUERY_WAIFU);
+
+                var jobject = JObject.Parse(jstring);
+
+                var posts = jobject["results"].ToObject<List<Post>>();
+
+                var channel = await _client.GetChannelAsync(315463551882100736);
+
+                var filters = ConstantVars.FILTERS.Split(" ");
+
+                var rng = new Random();
+                while (posts.Count > 0)
+                {
+                    var post = posts[rng.Next(0, posts.Count - 1)];
+                    var eb = new DiscordEmbedBuilder
+                    {
+                        Title = $"{post.Source} (Warning may have NSFW content.",
+                        Url = post.Page,
+                        ImageUrl = post.Url,
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = $"Source: {post.SourceUrl}",
+                            IconUrl = "https://i.imgur.com/mrnHP3J.png"
+                        },
+                        Color = new DiscordColor("9e8cb9")
+                    };
+
+                    if (!post.Tags.Any(t => filters.Contains(t)) && post.Extension.ToLower() != "gif" && post.Extension.ToLower() != "webm")
+                    {
+                        await channel.SendMessageAsync("", false, eb);
+                        await Task.Delay(TimeSpan.FromSeconds(10));
+                    }
+                    posts.Remove(post);
+                    Console.WriteLine($"NSFW COUNT: {posts.Count}\n");
+                }
+            }
+        }
 
         private async Task<SettingsStore> LoadSettingsAsync()
         {

@@ -13,6 +13,15 @@ namespace Suguya.Models
         [JsonProperty("prefix")]
         public string Prefix { get; private set; }
 
+        [JsonProperty("waifu-channel-ids")]
+        public List<ulong> WaifuChannelIds { get; private set; }
+
+        [JsonProperty("waifu-channel-nsfw-ids")]
+        public List<ulong> WaifuChannelNsfwIds { get; private set; }
+
+        [JsonProperty("filters")]
+        public List<string> Filters { get; private set; }
+
         public static SettingsStore Defualt
         {
             get
@@ -20,7 +29,10 @@ namespace Suguya.Models
                 return new SettingsStore
                 {
                     Token = "<token>",
-                    Prefix = ">"
+                    Prefix = ">",
+                    WaifuChannelIds = new List<ulong>(),
+                    WaifuChannelNsfwIds = new List<ulong>(),
+                    Filters = new List<string>();
                 };
             }
         }
