@@ -19,7 +19,7 @@ namespace Suguya
         private SettingsStore _settingsStore { get; set; }
         private DiscordClient _client { get; set; }
 
-        private TimeSpan timeBetweenPosts = TimeSpan.FromMinutes(5);
+        private TimeSpan timeBetweenPosts = TimeSpan.FromMinutes(1);
         private bool doPosting = true;
 
         private List<string> filters = ConstantVars.FILTERS.Split(" ").ToList();
@@ -81,7 +81,7 @@ namespace Suguya
                     var post = posts[rng.Next(0, posts.Count - 1)];
                     var eb = new DiscordEmbedBuilder
                     {
-                        Title = $"{post.Source} (Warning may have NSFW content.",
+                        Title = $"{post.Source} (Warning may have NSFW content.)",
                         Url = post.Page,
                         ImageUrl = post.Url,
                         Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -94,7 +94,7 @@ namespace Suguya
                     if (post.Extension.ToLower() != "gif" && post.Extension.ToLower() != "webm" && post.Source.ToLower() != "sankakucomplex")
                     {
                         await channel.SendMessageAsync("", false, eb);
-                        await Task.Delay(TimeSpan.FromSeconds(10));
+                        await Task.Delay(timeBetweenPosts);
                     }
                     posts.Remove(post);
                     Console.WriteLine($"SAFE COUNT: {posts.Count}\n");
@@ -121,7 +121,7 @@ namespace Suguya
                     var post = posts[rng.Next(0, posts.Count - 1)];
                     var eb = new DiscordEmbedBuilder
                     {
-                        Title = $"{post.Source} (Warning may have NSFW content.",
+                        Title = $"{post.Source}",
                         Url = post.Page,
                         ImageUrl = post.Url,
                         Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -135,7 +135,7 @@ namespace Suguya
                     if (!post.Tags.Any(t => filters.Contains(t)) && post.Extension.ToLower() != "gif" && post.Extension.ToLower() != "webm")
                     {
                         await channel.SendMessageAsync("", false, eb);
-                        await Task.Delay(TimeSpan.FromMinutes(5));
+                        await Task.Delay(timeBetweenPosts);
                     }
                     posts.Remove(post);
                     Console.WriteLine($"NSFW COUNT: {posts.Count}\n");
