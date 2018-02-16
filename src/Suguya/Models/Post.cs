@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Suguya.Models
 {
@@ -12,7 +10,8 @@ namespace Suguya.Models
         private string TagString { get; set; }
 
         [JsonIgnore]
-        public List<string> Tags {
+        public List<string> Tags
+        {
             get
             {
                 return TagString.Split(' ').ToList();
@@ -32,7 +31,15 @@ namespace Suguya.Models
         public string Source { get; private set; }
 
         [JsonProperty("sourceURL")]
-        public string SourceUrl { get; private set; }
+        private string SourceUrlPrivate { get; set; }
+
+        public string SourceUrl
+        {
+            get
+            {
+                return SourceUrlPrivate is null ? "" : SourceUrlPrivate;
+            }
+        }
 
         [JsonProperty("extension")]
         public string Extension { get; private set; }
@@ -58,6 +65,5 @@ namespace Suguya.Models
                 }
             }
         }
-
     }
 }
