@@ -5,7 +5,7 @@
         public const string SAFE_SEARCH_QUERY_WAIFU = "https://cure.ninja/booru/api/json/1/?f=s&s=1000&o=r&q=tag:female&a=1.777777";
         public const string QUES_SEARCH_QUERY_WAIFU = "https://cure.ninja/booru/api/json/1/?f=q&s=1000&o=r&q=tag:female&a=1.777777";
         public const string NSFW_SEARCH_QUERY_WAIFU = "https://cure.ninja/booru/api/json/1/?f=e&s=1000&o=r&q=tag:female&a=1.777777";
-        public const string ANY_SEARCH_QUERY_WAIFU = "https://cure.ninja/booru/api/json/1/?f=1&s=1000&o=r&q=tag:female&a=1.777777";
+        public const string ANY_SEARCH_QUERY_WAIFU = "https://cure.ninja/booru/api/json/1/?f=a&s=1000&o=r&q=tag:female&a=1.777777";
         
         public const string SAFE_SEARCH_QUERY_NEKO = "https://cure.ninja/booru/api/json/1/?f=s&&s=1000&o=r&q=tag:neko&a=1.777777";
         public const string QUES_SEARCH_QUERY_NEKO = "https://cure.ninja/booru/api/json/1/?f=q&&s=1000&o=r&q=tag:neko&a=1.777777";
