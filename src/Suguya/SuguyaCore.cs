@@ -2,7 +2,6 @@
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Suguya.Models;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using DSharpPlus.Interactivity;
 
 namespace Suguya
 {
@@ -18,9 +21,8 @@ namespace Suguya
         private SettingsStore _settingsStore { get; set; }
         private DiscordClient _client { get; set; }
         private ImagePoster _imagePoster { get; set; }
-
-        private TimeSpan timeBetweenPosts = TimeSpan.FromMinutes(1);
-        private bool doPosting = true;
+        private CommandsNextExtension _commandsNext { get; set; }
+        private InteractivityExtension _interactivity { get; set; }
 
         private List<string> filters = ConstantVars.FILTERS.Split(" ").ToList();
 
@@ -43,7 +45,28 @@ namespace Suguya
 
             _client = new DiscordClient(config);
 
-            this._client.Ready += this.OnReadyAsync;
+            _imagePoster = new ImagePoster(_client);
+
+            var deps = new ServiceCollection()
+                .AddSingleton(_imagePoster)
+                .AddSingleton(_client);
+
+            var cnConfig = new CommandsNextConfiguration
+            {
+                CaseSensitive = false,
+                EnableDefaultHelp = true,
+                EnableDms = false,
+                Services = deps.BuildServiceProvider(),
+                EnableMentionPrefix = true
+            };
+            _commandsNext = _client.UseCommandsNext(cnConfig);
+
+            // register commands
+            _commandsNext.RegisterCommands(Assembly.GetExecutingAssembly());
+
+            _interactivity = _client.UseInteractivity(new InteractivityConfiguration());
+
+            _client.Ready += this.OnReadyAsync;
 
             await ConnectAsync();
             await Task.Delay(-1);
@@ -56,7 +79,6 @@ namespace Suguya
 
         private async Task OnReadyAsync(ReadyEventArgs e)
         {
-            _imagePoster = new ImagePoster(_client);
             _imagePoster.StartPosting();
             await _client.UpdateStatusAsync(new DiscordActivity("conjured waifus.", ActivityType.Watching));
         }

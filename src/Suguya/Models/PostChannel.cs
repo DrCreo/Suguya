@@ -77,5 +77,15 @@ namespace Suguya.Models
         {
             return new PostChannel(000000000000, new List<string>(), new List<string>(), true);
         }
+
+        public void SetTagFilter(List<string> taglist)
+        {
+            FilteredTags = taglist;
+        }
+
+        internal void SetRating(Rating rating)
+        {
+            Rating = rating;
+        }
     }
 }

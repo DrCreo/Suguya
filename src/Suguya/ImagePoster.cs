@@ -166,6 +166,11 @@ namespace Suguya
             return;
         }
 
+        public PostChannel GetChannelByID(ulong channelid)
+        {
+            return Channels.First(c => c.ChannelId == channelid);
+        }
+
         /// <summary>
         /// Pulls a list of posts from the CureNinja API.
         /// </summary>
