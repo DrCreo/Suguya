@@ -43,7 +43,9 @@ namespace Suguya
                 }
                 foreach (var channel in Channels)
                     if (channel.NextPostTime < DateTime.Now && channel.PostToggle)
-                        await PostToChannel(channel);
+                    {
+                        Task.Run(async () => await PostToChannel(channel));
+                    }
 
                 await Task.Delay(5000);
             }
@@ -56,6 +58,10 @@ namespace Suguya
         /// <returns></returns>
         private async Task PostToChannel(PostChannel channel)
         {
+            // This is just so it doesn't keep posting over and over if it takes longer than 5 seconds for..
+            // this to choose and send a image, The the time is updated again at the end of this method.
+            channel.UpdateNextPostTime();
+
             if (channel.Posts == null)
                 channel.SetPosts(await PopulateChannelPostsAsync(channel));
 

@@ -51,13 +51,17 @@ namespace Suguya
                 .AddSingleton(_imagePoster)
                 .AddSingleton(_client);
 
+            var prefixes = new List<string>();
+            prefixes.Add(_settingsStore.Prefix);
+
             var cnConfig = new CommandsNextConfiguration
             {
                 CaseSensitive = false,
                 EnableDefaultHelp = true,
                 EnableDms = false,
                 Services = deps.BuildServiceProvider(),
-                EnableMentionPrefix = true
+                EnableMentionPrefix = true,
+                StringPrefixes = prefixes
             };
             _commandsNext = _client.UseCommandsNext(cnConfig);
 
